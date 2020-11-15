@@ -3,11 +3,13 @@ package eu.hozza.scrabbler.service
 import eu.hozza.scrabbler.Scrabbler
 import eu.hozza.scrabbler.buildTrie
 import eu.hozza.scrabbler.loadDictionary
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.io.File
 import java.nio.file.Paths
 
 @SpringBootApplication
@@ -17,12 +19,12 @@ fun main(args: Array<String>) {
     runApplication<ServiceApplication>(*args)
 }
 
+const val DICT_EXT = ".dic"
 const val MAX_LIMIT = 200
 
 @RestController
-class ScrabblerController {
-    private val dicts = listOf("/home/mio/source/scrabbler-service/dict/sk.dic")
-            .map { Paths.get(it).fileName.toString().removeSuffix(".dic") to it }.toMap()
+class ScrabblerController constructor(@Value("\${DICTIONARY_DIR}") private val dictLocation: String) {
+    private val dicts = loadDictionaries()
 
     @GetMapping("/scrabble")
     fun scrabble(
@@ -49,5 +51,16 @@ class ScrabblerController {
     private fun getScrabblerForDictionary(dict: String): Scrabbler {
         val words = loadDictionary(requireNotNull(dicts[dict]) { "Unknown dictionary." })
         return Scrabbler(words = words, trie = buildTrie(words))
+    }
+
+    private fun loadDictionaries(): Map<String, String> {
+        val dictDirectory = File(dictLocation)
+        require(dictDirectory.exists()) { "$dictLocation does not exist." }
+        require(dictDirectory.isDirectory) { "$dictLocation does is not directory." }
+        return dictDirectory
+                .list()
+                .filter { it.endsWith(DICT_EXT) }
+                .map { Paths.get(it).fileName.toString().removeSuffix(DICT_EXT) to it }
+                .toMap()
     }
 }
