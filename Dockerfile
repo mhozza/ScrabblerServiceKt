@@ -12,9 +12,9 @@ RUN ./gradlew bootJar --no-daemon
 
 FROM openjdk:11-jre-slim-stretch
 
-COPY --from=builder /tmp/app/build/libs/service-0.0.1-SNAPSHOT.jar /opt/app.jar
 COPY dict /dict
+COPY --from=builder /tmp/app/build/libs/service-0.0.1-SNAPSHOT.jar /opt/app.jar
 
 ENV DICTIONARY_DIR=/dict
 
-CMD ["java","-jar","/opt/app.jar"]
+CMD java -jar /opt/app.jar --server.port=80
