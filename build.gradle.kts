@@ -13,15 +13,8 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
 	mavenCentral()
+	maven { url = uri("https://jitpack.io") }
 	maven { url = uri("https://kotlin.bintray.com/kotlinx") }
-	maven {
-		name = "ScrabblerKt"
-		url = uri("https://maven.pkg.github.com/mhozza/ScrabblerKt")
-		credentials {
-			username = project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-			password = project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-		}
-	}
 }
 
 dependencies {
@@ -30,7 +23,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	implementation("eu.hozza:scrabbler:1.0.2-SNAPSHOT")
+	implementation("com.github.mhozza:ScrabblerKt:main-SNAPSHOT")
 }
 
 tasks.withType<Test> {
