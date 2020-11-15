@@ -2,6 +2,7 @@ package eu.hozza.scrabbler.service
 
 import eu.hozza.scrabbler.Scrabbler
 import eu.hozza.scrabbler.buildTrie
+import eu.hozza.scrabbler.filterDictionary
 import eu.hozza.scrabbler.loadDictionary
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -35,7 +36,7 @@ class ScrabblerController constructor(@Value("\${DICTIONARY_DIR}") private val d
             @RequestParam(value = "limit", defaultValue = "100") limit: Int,
             @RequestParam(value = "wildcard") wildcard: Char?,
     ): List<String> {
-        return getScrabblerForDictionary(dict).answer(
+        return getScrabblerForDictionary(dict, word, false, wildcard, useAllLetters, prefix).answer(
                 word = word,
                 regex = false,
                 limit = minOf(limit, MAX_LIMIT),
@@ -53,7 +54,7 @@ class ScrabblerController constructor(@Value("\${DICTIONARY_DIR}") private val d
             @RequestParam(value = "limit", defaultValue = "100") limit: Int,
             @RequestParam(value = "wildcard") wildcard: Char?,
     ): List<String> {
-        return getScrabblerForDictionary(dict, noTrie = true).answer(
+        return getScrabblerForDictionary(dict, word, true, wildcard, useAllLetters, prefix).answer(
                 word = word,
                 regex = true,
                 limit = minOf(limit, MAX_LIMIT),
@@ -65,9 +66,15 @@ class ScrabblerController constructor(@Value("\${DICTIONARY_DIR}") private val d
     @GetMapping("/dicts")
     fun listDicts() = dicts.keys
 
-    private fun getScrabblerForDictionary(dict: String, noTrie: Boolean = false): Scrabbler {
-        val words = loadDictionary(requireNotNull(dicts[dict]) { "Unknown dictionary." })
-        val trie = if (noTrie) null else buildTrie(words)
+    private fun getScrabblerForDictionary(dict: String, letters: String, regex: Boolean, wildcard: Char?, useAllLetters: Boolean, prefix: String?): Scrabbler {
+        val words = filterDictionary(
+                loadDictionary(requireNotNull(dicts[dict]) { "Unknown dictionary." }),
+                letters,
+                wildcard,
+                useAllLetters,
+                prefix)
+
+        val trie = if (regex) null else buildTrie(words)
         return Scrabbler(words = words, trie = trie)
     }
 
