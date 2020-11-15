@@ -78,7 +78,7 @@ class ScrabblerController constructor(@Value("\${DICTIONARY_DIR}") private val d
         return dictDirectory
                 .list()
                 .filter { it.endsWith(DICT_EXT) }
-                .map { Paths.get(it).fileName.toString().removeSuffix(DICT_EXT) to it }
+                .map { it.removeSuffix(DICT_EXT) to Paths.get(dictDirectory.toString(), it).toString() }
                 .toMap()
     }
 }

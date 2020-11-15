@@ -13,7 +13,7 @@ RUN ./gradlew bootJar --no-daemon
 FROM openjdk:11-jre-slim-stretch
 
 COPY dict /dict
-COPY --from=builder /tmp/app/build/libs/service-0.0.1-SNAPSHOT.jar /opt/app.jar
+COPY --from=builder /tmp/app/build/libs/service-0.0.2-SNAPSHOT.jar /opt/app.jar
 
 ENV DICTIONARY_DIR=/dict
 
