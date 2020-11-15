@@ -26,31 +26,49 @@ const val MAX_LIMIT = 200
 class ScrabblerController constructor(@Value("\${DICTIONARY_DIR}") private val dictLocation: String) {
     private val dicts = loadDictionaries()
 
-    @GetMapping("/scrabble")
-    fun scrabble(
+    @GetMapping("/permutations")
+    fun getPermutations(
             @RequestParam(value = "dict") dict: String,
             @RequestParam(value = "word") word: String,
             @RequestParam(value = "prefix") prefix: String?,
-            @RequestParam(value = "regex", defaultValue = "false") regex: Boolean,
             @RequestParam(value = "use_all_letters", defaultValue = "true") useAllLetters: Boolean,
             @RequestParam(value = "limit", defaultValue = "100") limit: Int,
             @RequestParam(value = "wildcard") wildcard: Char?,
     ): List<String> {
         return getScrabblerForDictionary(dict).answer(
                 word = word,
-                regex = regex,
+                regex = false,
                 limit = minOf(limit, MAX_LIMIT),
                 allowShorter = !useAllLetters,
                 wildcard = wildcard,
                 prefix = prefix)
     }
 
-    @GetMapping("/list_dicts")
+    @GetMapping("/regex")
+    private fun filterRegex(
+            @RequestParam(value = "dict") dict: String,
+            @RequestParam(value = "word") word: String,
+            @RequestParam(value = "prefix") prefix: String?,
+            @RequestParam(value = "use_all_letters", defaultValue = "true") useAllLetters: Boolean,
+            @RequestParam(value = "limit", defaultValue = "100") limit: Int,
+            @RequestParam(value = "wildcard") wildcard: Char?,
+    ): List<String> {
+        return getScrabblerForDictionary(dict, noTrie = true).answer(
+                word = word,
+                regex = true,
+                limit = minOf(limit, MAX_LIMIT),
+                allowShorter = !useAllLetters,
+                wildcard = wildcard,
+                prefix = prefix)
+    }
+
+    @GetMapping("/dicts")
     fun listDicts() = dicts.keys
 
-    private fun getScrabblerForDictionary(dict: String): Scrabbler {
+    private fun getScrabblerForDictionary(dict: String, noTrie: Boolean = false): Scrabbler {
         val words = loadDictionary(requireNotNull(dicts[dict]) { "Unknown dictionary." })
-        return Scrabbler(words = words, trie = buildTrie(words))
+        val trie = if (noTrie) null else buildTrie(words)
+        return Scrabbler(words = words, trie = trie)
     }
 
     private fun loadDictionaries(): Map<String, String> {
