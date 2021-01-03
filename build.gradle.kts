@@ -7,8 +7,8 @@ plugins {
 	kotlin("plugin.spring") version "1.4.10"
 }
 
-group = "eu.hozza.scrabbler"
-version = "0.0.3-SNAPSHOT"
+group = "com.mhozza.scrabbler.service"
+version = "0.3.0-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
@@ -23,7 +23,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	implementation("com.github.mhozza:ScrabblerKt:main-SNAPSHOT")
+	implementation("com.github.mhozza.ScrabblerKt:scrabblerlib:2.2.1")
 }
 
 tasks.withType<Test> {

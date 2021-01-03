@@ -1,4 +1,4 @@
-package eu.hozza.scrabbler.service
+package com.mhozza.scrabbler.service
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
